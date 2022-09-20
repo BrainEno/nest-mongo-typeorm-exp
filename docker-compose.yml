@@ -1,0 +1,51 @@
+version: '3'
+
+networks:
+  app-network:
+    driver: bridge
+services:
+  # mysql:
+  #   container_name: mqsql-1
+  #   image: mysql:latest
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: "root"
+  #     MYSQL_DATABASE: "nest-backend"
+  #   ports:
+  #     - "3306:3306"
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    environment:
+      - MONGODB_DATABASE="nest"
+    ports:
+      - 27017:27017
+    networks:
+      - app-network
+  redis:
+    container_name: redis_session
+    image: redis:alpine
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - USERNAME=default
+      - PASSWORD=123456
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    command: redis-server --save 20 1 --loglevel warning --maxmemory 100mb
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
+  # nestapp:
+  #   depends_on:
+  #     - mongodb
+  #     - redis_session
+  #   build: ./dist
+  #   restart: unless-stopped
+  #   env_file: ./env
+  #   ports:
+  #     - 9000:9000
+  #   stdin_open: true
+  #   tty: true
+  #   networks:
+  #     - app-tier
